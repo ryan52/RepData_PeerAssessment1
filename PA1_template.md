@@ -8,7 +8,8 @@ output:
 
 ## Loading and preprocessing the data
 
-```{r, result="hide"}
+
+```r
 if(!file.exists("activity.csv"))
         unzip("activity.zip")
 origData <- read.csv("activity.csv", header=TRUE, na.strings="NA")
@@ -18,11 +19,12 @@ origData$date <- as.Date(origData$date, "%Y-%m-%d")
 rowCount <- prettyNum(nrow(origData), big.mark=",")
 ```
 
-Successfully loaded `r rowCount` rows of data.
+Successfully loaded 17,568 rows of data.
 
 ## What is mean total number of steps taken per day?
 
-```{r}
+
+```r
 stepsPerDay <- tapply(origData$steps, origData$date, sum, na.rm=TRUE)
 stepMean <- prettyNum(as.integer(mean(stepsPerDay)), big.mark=",")
 stepMedian <- prettyNum(median(stepsPerDay), big.mark=",")
@@ -30,11 +32,14 @@ hist(stepsPerDay, breaks=10, xlab="Steps per day",
      main="Histogram of steps per day")
 ```
 
-The mean is `r stepMean` steps per day and the median is `r stepMedian` steps per day.
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+The mean is 9,354 steps per day and the median is 10,395 steps per day.
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 averageDailyActivity <- tapply(origData$steps, origData$interval,
                                mean, na.rm=TRUE)
 maxInterval <- names(which.max(averageDailyActivity))
@@ -45,11 +50,14 @@ plot(interval, averageDailyActivity, type = "l",
      main="Average number of steps by Interval")
 ```
 
-The interval with the maximum average number of steps is `r maxInterval`, which had `r maxSteps` steps on average.
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
+The interval with the maximum average number of steps is 835, which had 206 steps on average.
 
 ## Inputing missing values
 
-```{r}
+
+```r
 naCount <- prettyNum(nrow(subset(origData, is.na(steps))), big.mark=",")
 data <- origData
 averagesToUse <- as.character(data$interval[is.na(data$steps)])
@@ -61,12 +69,15 @@ hist(newStepsPerDay, breaks=10, xlab="Steps per day",
      main="Histogram of steps per day")
 ```
 
-There were originally `r naCount` rows with NA values provided. After filling those in with the mean for their interval, the new mean is `r newMean` steps per day and the new median is `r newMedian` steps per day. Filling in those missing values improved these summary estimates.
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
+
+There were originally 2,304 rows with NA values provided. After filling those in with the mean for their interval, the new mean is 10,749 steps per day and the new median is 10,641 steps per day. Filling in those missing values improved these summary estimates.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 
-```{r}
+
+```r
 w <- weekdays(data$date) != "Sunday" & weekdays(data$date) != "Saturday"
 data$weekday <- factor(w, levels=c(TRUE, FALSE), labels=c("weekday", "weekend"))
 library(lattice)
@@ -77,3 +88,5 @@ xyplot(steps ~ interval | weekday, data=data, type="l",
                       panel.xyplot(unique(x), t, ...)
                })
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
